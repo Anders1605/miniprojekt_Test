@@ -140,8 +140,23 @@ public class DataService
 
 	public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato)
 	{
-		// TODO: Implement!
-		return null!;
+		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
+		var patient = db.Patienter.Where(p => p.PatientId == patientId).Single();
+
+		var pNToAdd = new PN()
+		{
+			OrdinationId = db.Ordinationer.Count() + 1,
+			laegemiddel = lm,
+			antalEnheder = antal,
+			startDen = startDato,
+			slutDen = slutDato,
+		};
+
+		patient.ordinationer.Add(pNToAdd);
+
+		db.SaveChanges();
+
+		return pNToAdd;
 	}
 
 	public DagligFast OpretDagligFast(int patientId, int laegemiddelId,
@@ -154,6 +169,7 @@ public class DataService
 		//Hvad er link fra patient til ordination. Svar == Tilføj ordinationen til listen af ordinationer hos patienten
 
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
+		var patient = db.Patienter.Where(p => p.PatientId == patientId).Single();
 
 		var dagligFastToAdd = new DagligFast()
 		{
@@ -169,7 +185,7 @@ public class DataService
 
 		db.DagligFaste.Add(dagligFastToAdd);
 
-		db.Patienter.Where(p => p.PatientId == patientId).Single().ordinationer.Add(dagligFastToAdd);
+		patient.ordinationer.Add(dagligFastToAdd);
 
 		db.SaveChanges();
 
@@ -179,7 +195,7 @@ public class DataService
 	public DagligSkæv OpretDagligSkaev(int patientId, int laegemiddelId, Dosis[] doser, DateTime startDato, DateTime slutDato)
 	{
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
-
+		var patient = db.Patienter.Where(p => p.PatientId == patientId).Single();
 		var dagligSkaevToAdd = new DagligSkæv()
 		{
 			OrdinationId = db.Ordinationer.Count() + 1,
@@ -191,7 +207,7 @@ public class DataService
 
 		db.DagligSkæve.Add(dagligSkaevToAdd);
 
-		db.Patienter.Where(p => p.PatientId == patientId).Single().ordinationer.Add(dagligSkaevToAdd);
+		patient.ordinationer.Add(dagligSkaevToAdd);
 
 		db.SaveChanges();
 
