@@ -163,11 +163,6 @@ public class DataService
 		double antalMorgen, double antalMiddag, double antalAften, double antalNat,
 		DateTime startDato, DateTime slutDato)
 	{
-
-		//spørgsmål:: PatientId er medsendt som parameter, men skal det bruges som ordinationsid, Eller skal man bare generere en ny guid? 
-
-		//Hvad er link fra patient til ordination. Svar == Tilføj ordinationen til listen af ordinationer hos patienten
-
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
 		var patient = db.Patienter.Where(p => p.PatientId == patientId).Single();
 
@@ -232,8 +227,15 @@ public class DataService
 	/// <returns></returns>
 	public double GetAnbefaletDosisPerDøgn(int patientId, int laegemiddelId)
 	{
-		// TODO: Implement!
-		return -1;
+		double patientWeight = db.Patienter.Where(p => p.PatientId == patientId).Single().vaegt;
+		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
+
+		if (patientWeight < 25)
+			return lm.enhedPrKgPrDoegnLet;
+		else if (patientWeight > 120)
+			return lm.enhedPrKgPrDoegnTung;
+		else
+			return lm.enhedPrKgPrDoegnNormal;
 	}
 
 }
