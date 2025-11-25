@@ -139,27 +139,31 @@ public class DataService
         double antalMorgen, double antalMiddag, double antalAften, double antalNat, 
         DateTime startDato, DateTime slutDato) {
 
-        //Question:: PatientId er medsendt som parameter, men skal det bruges som ordinationsid, Eller skal man bare generere en ny guid? 
+        //spørgsmål:: PatientId er medsendt som parameter, men skal det bruges som ordinationsid, Eller skal man bare generere en ny guid? 
 
-        //Hvad er link fra patient til ordination.
+        //Hvad er link fra patient til ordination. Svar == Tilføj ordinationen til listen af ordinationer hos patienten
 
        var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
 
+		var ordination = new DagligFast()
+		{
+			OrdinationId = db.Ordinationer.Count() + 1,
+			laegemiddel = lm,
+			MorgenDosis = new Dosis() { antal = antalMorgen, tid = new DateTime() },
+			MiddagDosis = new Dosis() { antal = antalMiddag, tid = new DateTime() },
+			AftenDosis = new Dosis() { antal = antalAften, tid = new DateTime() },
+			NatDosis = new Dosis() { antal = antalNat, tid = new DateTime() },
+			startDen = startDato,
+			slutDen = slutDato
+        };
 
-        var ordination =  db.DagligFaste.Add(new DagligFast()
-        {
-            laegemiddel = lm,
-            MorgenDosis = new Dosis() { antal = antalMorgen, tid = new DateTime() },
-            MiddagDosis = new Dosis() { antal = antalMiddag, tid = new DateTime() },
-            AftenDosis = new Dosis() { antal = antalAften, tid = new DateTime() },
-            NatDosis = new Dosis() { antal = antalNat, tid = new DateTime() },
-            startDen = startDato,
-            slutDen = slutDato
+        db.DagligFaste.Add(ordination);
 
-        });
+        db.Patienter.Where(p => p.PatientId == patientId).Single().ordinationer.Add(ordination);
 
-        db.Patienter.Where(patient => patient.PatientId == patientId).Single().ordinationer.Add(ordination);
-        return null!;
+        db.SaveChanges();
+
+        return ordination;
     }
 
     public DagligSkæv OpretDagligSkaev(int patientId, int laegemiddelId, Dosis[] doser, DateTime startDato, DateTime slutDato) {
