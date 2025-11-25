@@ -1,12 +1,15 @@
+using System.Globalization;
+
 namespace shared.Model;
 
 public class PN : Ordination {
 	public double antalEnheder { get; set; }
     public List<Dato> dates { get; set; } = new List<Dato>();
 
-    public PN (DateTime startDen, DateTime slutDen, double antalEnheder, Laegemiddel laegemiddel) : base(laegemiddel, startDen, slutDen) {
-		this.antalEnheder = antalEnheder;
-	}
+    public PN(DateTime startDen, DateTime slutDen, double antalEnheder, Laegemiddel laegemiddel) : base(laegemiddel, startDen, slutDen)
+    {
+        this.antalEnheder = antalEnheder;
+    }
 
     public PN() : base(null!, new DateTime(), new DateTime()) {
     }
@@ -18,6 +21,34 @@ public class PN : Ordination {
     /// </summary>
     public bool givDosis(Dato givesDen) {
         // TODO: Implement!
+        DateTime startDen = this.startDen;
+        DateTime slutDen = this.slutDen;
+
+        List<DateTime> ordinationPeriod = new List<DateTime>();
+        
+        DateTime dateToAdd = startDen;
+        while(!dateToAdd.Equals(slutDen.AddDays(1)))
+        {
+            ordinationPeriod.Add(dateToAdd);
+            dateToAdd.AddDays(1);
+        }
+
+        int idCounter = dates.ElementAt(dates.Count()-1).DatoId;
+        
+        foreach(DateTime d in ordinationPeriod)
+        {
+            if (givesDen.Equals(d))
+            {
+                Dato dateDosisGiven = new Dato
+                {
+                    DatoId = idCounter+1,
+                    dato = d
+                };
+                dates.Add(dateDosisGiven);
+                return true;
+            }
+                
+        }
         return false;
     }
 
