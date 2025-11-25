@@ -15,45 +15,59 @@ public class PN : Ordination {
     }
 
     /// <summary>
-    /// Registrerer at der er givet en dosis på dagen givesDen
-    /// Returnerer true hvis givesDen er inden for ordinationens gyldighedsperiode og datoen huskes
-    /// Returner false ellers og datoen givesDen ignoreres
+    /// Underviser: Registrerer at der er givet en dosis på dagen givesDen
+    /// Underviser: Returnerer true hvis givesDen er inden for ordinationens gyldighedsperiode og datoen huskes
+    /// Underviser: Returner false ellers og datoen givesDen ignoreres
+    /// AO: .Date da tidspunkter ellers kan give problemer med sammenligningen. Sikrer at vi kun kigger på dato. 
     /// </summary>
     public bool givDosis(Dato givesDen) {
-        // TODO: Implement!
-        DateTime startDen = this.startDen;
-        DateTime slutDen = this.slutDen;
+        DateTime startDen = this.startDen.Date;
+        DateTime slutDen = this.slutDen.Date;
 
-        List<DateTime> ordinationPeriod = new List<DateTime>();
-        
-        DateTime dateToAdd = startDen;
-        while(!dateToAdd.Equals(slutDen.AddDays(1)))
+        if (givesDen == null)
         {
-            ordinationPeriod.Add(dateToAdd);
-            dateToAdd.AddDays(1);
+            return false;
         }
 
-        int idCounter = dates.ElementAt(dates.Count()-1).DatoId;
-        
-        foreach(DateTime d in ordinationPeriod)
+        int idCounter = 0;
+        if (dates.Count > 0)
         {
-            if (givesDen.Equals(d))
+            idCounter = dates[dates.Count - 1].DatoId;
+        }
+
+        if (startDen <= givesDen.dato.Date && slutDen >= givesDen.dato.Date)
+        {
+            Dato dateDosisGiven = new Dato
             {
-                Dato dateDosisGiven = new Dato
-                {
-                    DatoId = idCounter+1,
-                    dato = d
-                };
-                dates.Add(dateDosisGiven);
-                return true;
-            }
-                
+                //AO: Hvis der er ikke er elementer i listen, bliver datoId 1. 
+                DatoId = (idCounter > 0 ? idCounter + 1 : 1),
+                dato = givesDen.dato,
+            };
+            dates.Add(dateDosisGiven);
+            return true;
         }
+
         return false;
     }
 
+    /// <summary>
+    /// AO: Antallet af enheder der er givet totalt divideret med antal "behandlingsdøgn" i indeværende ordinationsperiode. 
+    /// </summary>
+    /// <returns></returns>
     public override double doegnDosis() {
-    	// TODO: Implement!
+        if (dates.Count <= 0)
+            return -1;
+
+        //AO: Snedig LINQ som finder antallet unique datoer, altså antal "behandlingsdage" i ordinationsperioden. 
+        int noOfDaysWTreatment = dates
+            .Select(d => d.dato.Date)
+            .Distinct()
+            .Count();
+        
+        if(noOfDaysWTreatment > 0)
+        {
+            return samletDosis() / noOfDaysWTreatment;
+        }
         return -1;
     }
 
