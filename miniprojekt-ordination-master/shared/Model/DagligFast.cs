@@ -24,8 +24,8 @@ public class DagligFast : Ordination {
 	}
 
 	public override double doegnDosis() {
-		// TODO: Implement!
-        return -1;
+        //JBS: Beregner døgndosis ved at summere alle 4 doser
+        return MorgenDosis.antal + MiddagDosis.antal + AftenDosis.antal + NatDosis.antal;
 	}
 	
 	public Dosis[] getDoser() {
