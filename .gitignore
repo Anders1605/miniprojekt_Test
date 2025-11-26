@@ -36,3 +36,4 @@ temp/
 bin/
 *.dll
 
+.vs/slnx.sqlite
