@@ -51,7 +51,8 @@ public class PN : Ordination {
     }
 
     /// <summary>
-    /// AO: Antallet af enheder der er givet totalt divideret med antal "behandlingsdøgn" i indeværende ordinationsperiode. 
+    /// AO: Antallet af enheder der er givet totalt divideret med antal "behandlingsdøgn" 
+    /// (de dage hvor der rent faktisk er taget medicin) i indeværende ordinationsperiode. 
     /// </summary>
     /// <returns></returns>
     public override double doegnDosis() {
