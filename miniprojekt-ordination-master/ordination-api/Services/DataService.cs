@@ -99,45 +99,40 @@ public class DataService
 			p[1].ordinationer.Add(ordinationer[4]);
 			p[1].ordinationer.Add(ordinationer[5]);
 
-			db.SaveChanges();
-		}
-	}
 
+            db.SaveChanges();
+        }
+    }
 
-	public List<PN> GetPNs()
-	{
-		return db.PNs.Include(o => o.laegemiddel).Include(o => o.dates).ToList();
-	}
+    
+    public List<PN> GetPNs() {
+        return db.PNs.Include(o => o.laegemiddel).Include(o => o.dates).ToList();
+    }
 
-	public List<DagligFast> GetDagligFaste()
-	{
-		return db.DagligFaste
-			.Include(o => o.laegemiddel)
-			.Include(o => o.MorgenDosis)
-			.Include(o => o.MiddagDosis)
-			.Include(o => o.AftenDosis)
-			.Include(o => o.NatDosis)
-			.ToList();
-	}
+    public List<DagligFast> GetDagligFaste() {
+        return db.DagligFaste
+            .Include(o => o.laegemiddel)
+            .Include(o => o.MorgenDosis)
+            .Include(o => o.MiddagDosis)
+            .Include(o => o.AftenDosis)            
+            .Include(o => o.NatDosis)            
+            .ToList();
+    }
 
-	public List<DagligSkæv> GetDagligSkæve()
-	{
-		return db.DagligSkæve
-			.Include(o => o.laegemiddel)
-			.Include(o => o.doser)
-			.ToList();
-	}
+    public List<DagligSkæv> GetDagligSkæve() {
+        return db.DagligSkæve
+            .Include(o => o.laegemiddel)
+            .Include(o => o.doser)
+            .ToList();
+    }
 
-	public List<Patient> GetPatienter()
-	{
-		return db.Patienter.Include(p => p.ordinationer).ToList();
-	}
+    public List<Patient> GetPatienter() {
+        return db.Patienter.Include(p => p.ordinationer).ToList();
+    }
 
-	public List<Laegemiddel> GetLaegemidler()
-	{
-		return db.Laegemiddler.ToList();
-	}
-
+    public List<Laegemiddel> GetLaegemidler() {
+        return db.Laegemiddler.ToList();
+    }
 	public PN OpretPN(int patientId, int laegemiddelId, double antal, DateTime startDato, DateTime slutDato)
 	{
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
@@ -209,23 +204,43 @@ public class DataService
 		return dagligSkaevToAdd!;
 	}
 
-	public string AnvendOrdination(int id, Dato dato)
-	{
-		// TODO: Test!
+    public string AnvendOrdination(int id, Dato dato)
+    {
+        // Finder PN ordinationen med det givne id
+        var pn = db.PNs
+            .Include(o => o.dates)
+            .FirstOrDefault(o => o.OrdinationId == id);
 
-		db.PNs.Where(pn => pn.OrdinationId == id).Single().givDosis(dato);
+        if (pn == null)
+        {
+            return $"Ordination med id {id} findes ikke.";
+        }
 
-		return null!;
-	}
+        if (dato == null)
+        {
+            return "Dato kan ikke være null.";
+        }
 
-	/// <summary>
-	/// Den anbefalede dosis for den pågældende patient, per døgn, hvor der skal tages hensyn til
-	/// patientens vægt. Enheden afhænger af lægemidlet. Patient og lægemiddel må ikke være null.
-	/// </summary>
-	/// <param name="patient"></param>
-	/// <param name="laegemiddel"></param>
-	/// <returns></returns>
-	public double GetAnbefaletDosisPerDøgn(int patientId, int laegemiddelId)
+        // Bruger logikken i PN.givDosis til at afgøre om datoen må bruges
+        bool succes = pn.givDosis(dato);
+
+        if (!succes)
+        {
+            return "Ordinationen kunne ikke anvendes, datoen ligger uden for gyldighedsperioden.";
+        }
+
+        db.SaveChanges();
+        return "Ordination anvendt.";
+    }
+
+    /// <summary>
+    /// Den anbefalede dosis for den pågældende patient, per døgn, hvor der skal tages hensyn til
+    /// patientens vægt. Enheden afhænger af lægemidlet. Patient og lægemiddel må ikke være null.
+    /// </summary>
+    /// <param name="patient"></param>
+    /// <param name="laegemiddel"></param>
+    /// <returns></returns>
+    public double GetAnbefaletDosisPerDøgn(int patientId, int laegemiddelId)
 	{
 		double patientWeight = db.Patienter.Where(p => p.PatientId == patientId).Single().vaegt;
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
