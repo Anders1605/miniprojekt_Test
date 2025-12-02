@@ -1,7 +1,7 @@
-kgnamespace ordination_test;
+namespace ordination_test;
 
 [TestClass]
-public class DagligSkaevTest
+public class DaglgTest
 {
     [TestMethod]
     public void TestMethod1()
