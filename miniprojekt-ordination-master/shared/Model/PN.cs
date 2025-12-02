@@ -57,7 +57,7 @@ public class PN : Ordination {
     /// <returns></returns>
     public override double doegnDosis() {
         if (dates.Count <= 0)
-            return -1;
+            return 0;
 
         //AO: Snedig LINQ som finder antallet unique datoer, altså antal "behandlingsdage" i ordinationsperioden. 
         int noOfDaysWTreatment = dates

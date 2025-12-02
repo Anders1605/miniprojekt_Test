@@ -60,7 +60,7 @@
     public Laegemiddel? laegemiddel { get; set; }
     [Parameter]
     public double AnbefaletDosisPerDøgn { get; set; }
-    public string AnbefaletDosisPerDøgnRounded { get { return AnbefaletDosisPerDøgn.ToString("#.##"); } }
+    public string AnbefaletDosisPerDøgnRounded { get { return AnbefaletDosisPerDøgn.ToString("#0.00"); } }
     [Parameter]
     public Action? onFortryd { get; set; }
     [Parameter]
