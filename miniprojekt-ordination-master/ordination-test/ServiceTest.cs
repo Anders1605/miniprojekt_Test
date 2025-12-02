@@ -41,6 +41,26 @@ public class ServiceTest
         Assert.AreEqual(2, service.GetDagligFaste().Count());
     }
 
+    [TestMethod] // CSB
+    public void GetAnbefaletDosisPerDoegn_NormalVaegt_ReturnererNormalDose()
+    {
+        // ARRANGE
+        // Vi henter en patient med vægt mellem 25 og 120 
+        List<Patient> patienter = service.GetPatienter();
+        List<Laegemiddel> laegemidler = service.GetLaegemidler();
+
+        Patient patient = patienter[0];
+        Laegemiddel lm = laegemidler[1];
+
+        double forventet = lm.enhedPrKgPrDoegnNormal;
+
+        // ACT
+        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
+
+        // ASSERT
+        Assert.AreEqual(forventet, faktisk);
+    }
+
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
     public void TestAtKodenSmiderEnException()
@@ -53,4 +73,5 @@ public class ServiceTest
 
         Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
     }
+
 }
