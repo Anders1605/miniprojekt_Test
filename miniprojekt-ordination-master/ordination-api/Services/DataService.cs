@@ -246,11 +246,11 @@ public class DataService
 		var lm = db.Laegemiddler.Where(lm => lm.LaegemiddelId == laegemiddelId).Single();
 
 		if (patientWeight < 25)
-			return lm.enhedPrKgPrDoegnLet;
+			return patientWeight* lm.enhedPrKgPrDoegnLet;
 		else if (patientWeight > 120)
-			return lm.enhedPrKgPrDoegnTung;
+			return patientWeight * lm.enhedPrKgPrDoegnTung;
 		else
-			return lm.enhedPrKgPrDoegnNormal;
+			return patientWeight * lm.enhedPrKgPrDoegnNormal;
 	}
 
 }
