@@ -42,24 +42,41 @@ public class ServiceTest
     }
 
     [TestMethod] // CSB
-    public void GetAnbefaletDosisPerDoegn_NormalVaegt_ReturnererNormalDose()
+    public void GetAnbefaletDosisPerDoegn_LetVaegt_ReturnererLetDose()
     {
-        // ARRANGE
-        // Vi henter en patient med vægt mellem 25 og 120 
-        List<Patient> patienter = service.GetPatienter();
-        List<Laegemiddel> laegemidler = service.GetLaegemidler();
+        var patient = service.GetPatienter().First(p => p.vaegt < 25);
+        var lm = service.GetLaegemidler().First();
+        double forventet = lm.enhedPrKgPrDoegnLet;
 
-        Patient patient = patienter[0];
-        Laegemiddel lm = laegemidler[1];
-
-        double forventet = lm.enhedPrKgPrDoegnNormal;
-
-        // ACT
         double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
 
-        // ASSERT
         Assert.AreEqual(forventet, faktisk);
     }
+
+    [TestMethod] // CSB
+    public void GetAnbefaletDosisPerDoegn_NormalVaegt_ReturnererNormalDose()
+    {
+        var patient = service.GetPatienter().First(p => p.vaegt >= 25 && p.vaegt <= 120);
+        var lm = service.GetLaegemidler().First();
+        double forventet = lm.enhedPrKgPrDoegnNormal;
+
+        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
+
+        Assert.AreEqual(forventet, faktisk);
+    }
+
+    [TestMethod] // CSB
+    public void GetAnbefaletDosisPerDoegn_TungVaegt_ReturnererTungDose()
+    {
+        var patient = service.GetPatienter().First(p => p.vaegt > 120);
+        var lm = service.GetLaegemidler().First();
+        double forventet = lm.enhedPrKgPrDoegnTung;
+
+        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
+
+        Assert.AreEqual(forventet, faktisk);
+    }
+
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentNullException))]
