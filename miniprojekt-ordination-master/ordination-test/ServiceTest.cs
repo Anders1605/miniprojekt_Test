@@ -9,86 +9,128 @@ using shared.Model;
 [TestClass]
 public class ServiceTest
 {
-    private DataService service;
+	private DataService service;
 
-    [TestInitialize]
-    public void SetupBeforeEachTest()
-    {
-        var optionsBuilder = new DbContextOptionsBuilder<OrdinationContext>();
-        optionsBuilder.UseInMemoryDatabase(databaseName: "test-database");
-        var context = new OrdinationContext(optionsBuilder.Options);
-        service = new DataService(context);
-        service.SeedData();
-    }
+	[TestInitialize]
+	public void SetupBeforeEachTest()
+	{
+		var optionsBuilder = new DbContextOptionsBuilder<OrdinationContext>();
+		optionsBuilder.UseInMemoryDatabase(databaseName: "test-database");
+		var context = new OrdinationContext(optionsBuilder.Options);
+		service = new DataService(context);
+		service.SeedData();
+	}
 
-    [TestMethod]
-    public void PatientsExist()
-    {
-        Assert.IsNotNull(service.GetPatienter());
-    }
+	[TestMethod]
+	public void PatientsExist()
+	{
+		Assert.IsNotNull(service.GetPatienter());
+	}
 
-    [TestMethod]
-    public void OpretDagligFast()
-    {
-        Patient patient = service.GetPatienter().First();
-        Laegemiddel lm = service.GetLaegemidler().First();
+	[TestMethod]
+	public void OpretDagligFast()
+	{
+		Patient patient = service.GetPatienter().First();
+		Laegemiddel lm = service.GetLaegemidler().First();
 
-        Assert.AreEqual(1, service.GetDagligFaste().Count());
+		Assert.AreEqual(1, service.GetDagligFaste().Count());
 
-        service.OpretDagligFast(patient.PatientId, lm.LaegemiddelId,
-            2, 2, 1, 0, DateTime.Now, DateTime.Now.AddDays(3));
+		service.OpretDagligFast(patient.PatientId, lm.LaegemiddelId,
+			2, 2, 1, 0, DateTime.Now, DateTime.Now.AddDays(3));
 
-        Assert.AreEqual(2, service.GetDagligFaste().Count());
-    }
+		Assert.AreEqual(2, service.GetDagligFaste().Count());
+	}
 
-    [TestMethod] // CSB
-    public void GetAnbefaletDosisPerDoegn_LetVaegt_ReturnererLetDose()
-    {
-        var patient = service.GetPatienter().First(p => p.vaegt < 25);
-        var lm = service.GetLaegemidler().First();
-        double forventet = lm.enhedPrKgPrDoegnLet;
+	[TestMethod]
+	[ExpectedException(typeof(InvalidOperationException))]
+	public void TestAtKodenSmiderEnException()
+	{
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+		var ordinationer = service.GetPNs();
 
-        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
+		patienter[0].PatientId = 20;
 
-        Assert.AreEqual(forventet, faktisk);
-    }
+		//Act
 
-    [TestMethod] // CSB
-    public void GetAnbefaletDosisPerDoegn_NormalVaegt_ReturnererNormalDose()
-    {
-        var patient = service.GetPatienter().First(p => p.vaegt >= 25 && p.vaegt <= 120);
-        var lm = service.GetLaegemidler().First();
-        double forventet = lm.enhedPrKgPrDoegnNormal;
+		var PNToTest = service.OpretPN(patienter[0].PatientId, lægemidler[0].LaegemiddelId, 10, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(5));
 
-        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
+		Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
+	}
 
-        Assert.AreEqual(forventet, faktisk);
-    }
+	[TestMethod]
+	public void AvendOrdinationTestSuccess()
+	{
 
-    [TestMethod] // CSB
-    public void GetAnbefaletDosisPerDoegn_TungVaegt_ReturnererTungDose()
-    {
-        var patient = service.GetPatienter().First(p => p.vaegt > 120);
-        var lm = service.GetLaegemidler().First();
-        double forventet = lm.enhedPrKgPrDoegnTung;
-
-        double faktisk = service.GetAnbefaletDosisPerDøgn(patient.PatientId, lm.LaegemiddelId);
-
-        Assert.AreEqual(forventet, faktisk);
-    }
+		//Arrange
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+		var ordinationer = service.GetPNs();
 
 
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void TestAtKodenSmiderEnException()
-    {
-        // Herunder skal man så kalde noget kode,
-        // der smider en exception.
+		//Act
 
-        // Hvis koden _ikke_ smider en exception,
-        // så fejler testen.
+		var PNToTest = service.OpretPN(patienter[0].PatientId, lægemidler[0].LaegemiddelId, 10, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(5));
+		var result = service.AnvendOrdination(PNToTest.OrdinationId, new Dato() { dato = DateTime.Now });
 
-        Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
-    }
+		//Assert
+		Assert.AreEqual("Ordination anvendt.", result);
+	}
 
+	[TestMethod]
+	public void OpretPNTest()
+	{
+
+		//Arrange
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+		var ordinationer = service.GetPNs();
+
+		int forventet = ordinationer.Count + 1;
+
+		//Act
+
+		var PNToTest = service.OpretPN(patienter[0].PatientId, lægemidler[0].LaegemiddelId, 10, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(5));
+
+		ordinationer = service.GetPNs();
+
+		//Assert
+
+		Assert.AreEqual(forventet, ordinationer.Count);
+	}
+
+	[TestMethod]
+	public void GetAnbefaletDosisPerDøgnTest()
+	{
+		//Arrange
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+
+		var letPatient = patienter.Where(x => x.vaegt < 25).First();
+		var normalPatient = patienter.Where(x => x.vaegt > 25 && x.vaegt < 120).First();
+		var tungPatient = patienter.Where(x => x.vaegt >= 120).First();
+
+		double actualLet;
+		double actualNormal;
+		double ActualTung;
+
+
+		double expectedLet = letPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnLet;
+		double expectedNormal = normalPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnNormal;
+		double expectedTung = tungPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnTung;
+
+		Console.WriteLine("Expected values in order: " + " " + "Let: " + expectedLet +"  " + "Normal: " + expectedNormal +" "+ "Tung: " + expectedTung);
+		
+		//Act
+		actualLet = service.GetAnbefaletDosisPerDøgn(letPatient.PatientId, lægemidler[0].LaegemiddelId);
+		actualNormal = service.GetAnbefaletDosisPerDøgn(normalPatient.PatientId, lægemidler[0].LaegemiddelId);
+		ActualTung = service.GetAnbefaletDosisPerDøgn(tungPatient.PatientId, lægemidler[0].LaegemiddelId);
+
+		Console.WriteLine("Actual values in order: : " + " " + "Let: " + actualLet + "  " + "Normal: " + actualNormal + " " + "Tung: " + ActualTung);
+
+		//Assert
+		Assert.AreEqual(expectedLet, actualLet);
+		Assert.AreEqual(expectedNormal, actualNormal);
+		Assert.AreEqual(expectedTung, ActualTung);
+	}
 }
