@@ -2,8 +2,9 @@ using System.Globalization;
 
 namespace shared.Model;
 
-public class PN : Ordination {
-	public double antalEnheder { get; set; }
+public class PN : Ordination
+{
+    public double antalEnheder { get; set; }
     public List<Dato> dates { get; set; } = new List<Dato>();
 
     public PN(DateTime startDen, DateTime slutDen, double antalEnheder, Laegemiddel laegemiddel) : base(laegemiddel, startDen, slutDen)
@@ -11,7 +12,8 @@ public class PN : Ordination {
         this.antalEnheder = antalEnheder;
     }
 
-    public PN() : base(null!, new DateTime(), new DateTime()) {
+    public PN() : base(null!, new DateTime(), new DateTime())
+    {
     }
 
     /// <summary>
@@ -20,7 +22,8 @@ public class PN : Ordination {
     /// Underviser: Returner false ellers og datoen givesDen ignoreres
     /// AO: .Date da tidspunkter ellers kan give problemer med sammenligningen. Sikrer at vi kun kigger på dato. 
     /// </summary>
-    public bool givDosis(Dato givesDen) {
+    public bool givDosis(Dato givesDen)
+    {
         DateTime startDen = this.startDen.Date;
         DateTime slutDen = this.slutDen.Date;
 
@@ -52,36 +55,41 @@ public class PN : Ordination {
 
     /// <summary>
     /// AO: Antallet af enheder der er givet totalt divideret med antal "behandlingsdøgn" 
-    /// (de dage hvor der rent faktisk er taget medicin) i indeværende ordinationsperiode. 
+    /// (dagene fra første til sidste behandlingsdag) i indeværende ordinationsperiode. 
     /// </summary>
     /// <returns></returns>
-    public override double doegnDosis() {
-        if (dates.Count <= 0)
+    public override double doegnDosis()
+    {
+        if (dates.Count == 0)
             return 0;
 
-        //AO: Snedig LINQ som finder antallet unique datoer, altså antal "behandlingsdage" i ordinationsperioden. 
-        int noOfDaysWTreatment = dates
-            .Select(d => d.dato.Date)
-            .Distinct()
-            .Count();
-        
-        if(noOfDaysWTreatment > 0)
-        {
-            return samletDosis() / noOfDaysWTreatment;
-        }
-        return -1;
+        var datesOfTreatment = dates.Select(d => d.dato.Date);
+
+        var dateLow = datesOfTreatment.Min();
+        var dateHigh = datesOfTreatment.Max();
+
+        // AO: +1 fordi både start og slutdag tæller
+        int noOfDaysWTreatment = (dateHigh - dateLow).Days + 1;
+
+        if (noOfDaysWTreatment <= 0)
+            return 0;
+
+        return samletDosis() / noOfDaysWTreatment;
     }
 
 
-    public override double samletDosis() {
+    public override double samletDosis()
+    {
         return dates.Count() * antalEnheder;
     }
 
-    public int getAntalGangeGivet() {
+    public int getAntalGangeGivet()
+    {
         return dates.Count();
     }
 
-	public override String getType() {
-		return "PN";
-	}
+    public override String getType()
+    {
+        return "PN";
+    }
 }

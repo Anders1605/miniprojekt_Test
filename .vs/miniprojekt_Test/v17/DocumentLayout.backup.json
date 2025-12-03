@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Chril\\OneDrive\\Documents\\GitHub\\CosmosAflevering\\miniprojekt_Test\\",
+  "WorkspaceRootPath": "C:\\Users\\Chril\\RiderProjects\\miniprojekt_Test\\",
   "Documents": [],
   "DocumentGroupContainers": [
     {
@@ -13,10 +13,6 @@
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:129:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
             },
             {
@@ -26,6 +22,10 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{e1b7d1f8-9b3c-49b1-8f4f-bfc63a88835d}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
         },
