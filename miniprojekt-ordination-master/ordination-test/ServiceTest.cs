@@ -53,4 +53,23 @@ public class ServiceTest
 
         Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
     }
+
+    [TestMethod]
+    public void AvendOrdinationTestSuccess()
+    {
+
+        //Arrange
+        var patienter = service.GetPatienter();
+        var lægemidler = service.GetLaegemidler();
+        var ordinationer = service.GetPNs();
+
+
+        //Act
+
+        var PNToTest = service.OpretPN(patienter[0].PatientId, lægemidler[0].LaegemiddelId, 10, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(5));
+       var result = service.AnvendOrdination(PNToTest.OrdinationId, new Dato() { dato = DateTime.Now});
+        
+        //Assert
+        Assert.AreEqual("Ordination anvendt.", result);
+    }
 }

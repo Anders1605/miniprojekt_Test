@@ -146,7 +146,7 @@ public class DataService
 			startDen = startDato,
 			slutDen = slutDato,
 		};
-
+		db.Ordinationer.Add(pNToAdd);	
 		patient.ordinationer.Add(pNToAdd);
 
 		db.SaveChanges();
