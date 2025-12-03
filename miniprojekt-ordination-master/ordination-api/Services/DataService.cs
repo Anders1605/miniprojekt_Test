@@ -228,8 +228,7 @@ public class DataService
         {
             return "Ordinationen kunne ikke anvendes, datoen ligger uden for gyldighedsperioden.";
         }
-
-        db.SaveChanges();
+		
         return "Ordination anvendt.";
     }
 
