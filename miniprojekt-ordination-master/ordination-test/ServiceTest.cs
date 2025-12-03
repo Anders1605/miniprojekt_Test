@@ -98,4 +98,39 @@ public class ServiceTest
 
 		Assert.AreEqual(forventet, ordinationer.Count);
 	}
+
+	[TestMethod]
+	public void GetAnbefaletDosisPerDøgnTest()
+	{
+		//Arrange
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+
+		var letPatient = patienter.Where(x => x.vaegt < 25).First();
+		var normalPatient = patienter.Where(x => x.vaegt > 25 && x.vaegt < 120).First();
+		var tungPatient = patienter.Where(x => x.vaegt >= 120).First();
+
+		double actualLet;
+		double actualNormal;
+		double ActualTung;
+
+
+		double expectedLet = letPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnLet;
+		double expectedNormal = normalPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnNormal;
+		double expectedTung = tungPatient.vaegt * lægemidler[0].enhedPrKgPrDoegnTung;
+
+		Console.WriteLine("Expected values in order: " + " " + "Let: " + expectedLet +"  " + "Normal: " + expectedNormal +" "+ "Tung: " + expectedTung);
+		
+		//Act
+		actualLet = service.GetAnbefaletDosisPerDøgn(letPatient.PatientId, lægemidler[0].LaegemiddelId);
+		actualNormal = service.GetAnbefaletDosisPerDøgn(normalPatient.PatientId, lægemidler[0].LaegemiddelId);
+		ActualTung = service.GetAnbefaletDosisPerDøgn(tungPatient.PatientId, lægemidler[0].LaegemiddelId);
+
+		Console.WriteLine("Actual values in order: : " + " " + "Let: " + actualLet + "  " + "Normal: " + actualNormal + " " + "Tung: " + ActualTung);
+
+		//Assert
+		Assert.AreEqual(expectedLet, actualLet);
+		Assert.AreEqual(expectedNormal, actualNormal);
+		Assert.AreEqual(expectedTung, ActualTung);
+	}
 }

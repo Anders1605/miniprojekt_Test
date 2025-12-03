@@ -23,7 +23,7 @@ public class DataService
 	{
 
 		// Patients
-		Patient[] patients = new Patient[5];
+		Patient[] patients = new Patient[7];
 		patients[0] = db.Patienter.FirstOrDefault()!;
 
 		if (patients[0] == null)
@@ -33,12 +33,19 @@ public class DataService
 			patients[2] = new Patient("050972-1233", "Hans Jørgensen", 89.4);
 			patients[3] = new Patient("011064-1522", "Ulla Nielsen", 59.9);
 			patients[4] = new Patient("123456-1234", "Ib Hansen", 87.7);
+			patients[5] = new Patient("123456-5555", "Lille Per", 22);
+			patients[6] = new Patient("123456-6666", "Store Per", 126.7);
+
+
 
 			db.Patienter.Add(patients[0]);
 			db.Patienter.Add(patients[1]);
 			db.Patienter.Add(patients[2]);
 			db.Patienter.Add(patients[3]);
 			db.Patienter.Add(patients[4]);
+			db.Patienter.Add(patients[5]);
+			db.Patienter.Add(patients[6]);
+
 			db.SaveChanges();
 		}
 
