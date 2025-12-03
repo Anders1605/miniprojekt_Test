@@ -42,16 +42,20 @@ public class ServiceTest
     }
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
+    [ExpectedException(typeof(InvalidOperationException))]
     public void TestAtKodenSmiderEnException()
     {
-        // Herunder skal man så kalde noget kode,
-        // der smider en exception.
+		var patienter = service.GetPatienter();
+		var lægemidler = service.GetLaegemidler();
+		var ordinationer = service.GetPNs();
 
-        // Hvis koden _ikke_ smider en exception,
-        // så fejler testen.
+        patienter[0].PatientId = 20;
 
-        Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
+		//Act
+
+		var PNToTest = service.OpretPN(patienter[0].PatientId, lægemidler[0].LaegemiddelId, 10, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(5));
+
+		Console.WriteLine("Her kommer der ikke en exception. Testen fejler.");
     }
 
     [TestMethod]
