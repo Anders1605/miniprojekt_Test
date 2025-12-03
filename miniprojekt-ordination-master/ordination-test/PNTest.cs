@@ -65,7 +65,7 @@ public class PNTest
     [TestMethod]
     public void PN_doegnDosis_TC1()
     {
-        Assert.AreEqual(0, testPN.doegnDosis);
+        Assert.AreEqual(0, testPN.doegnDosis());
     }
 
 
